@@ -23,7 +23,6 @@ validator.form.onsubmit = (evn) => {
 
   const formData = validator.getValues();
 
-  // check validator for any error and handle it
   if (Object.values(validator?.errorMessages ?? {}).length) {
     const errorNode = document.getElementById('errorField');
     Object.entries(validator.errorMessages).forEach(
