@@ -1,41 +1,44 @@
-function handleSubmit(e) {
-  e.preventDefault();
-  const formData = new FormData(e.target);
-  const formProps = Object.fromEntries(formData);
+const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
+const nigeriaPhoneNumberRegex = /^(0|234|\+234)?[7-9][0-1]\d{8}$/gm;
 
-  localStorage.setItem('user', JSON.stringify(formProps));
-  //   const ezinne = JSON.parse(localStorage.getItem('user'));
-  // localStorage.clear()
-  //   console.log(ezinne.lname);
-  //   console.log;
-  //   console.log(formProps);
-}
-const loginForm = document.getElementById('myform');
-loginForm.addEventListener('submit', handleSubmit);
-// console.log('yes');
+// initialise and use validator
+let validator = new Validator({
+  form: document.getElementById('myform'),
+  rules: {
+    email: {
+      validate: (val) =>
+        emailRegex.test(val ?? '') ? '' : 'Please input the right email format',
+    },
+    phone_number: {
+      validate: (val) =>
+        nigeriaPhoneNumberRegex.test(val ?? '')
+          ? ''
+          : 'Please input the right phone number',
+    },
+  },
+});
 
-// var validator = new Validator({
-//   form: document.getElementById('form'),
-//   rules: {
-//     email: {
-//       validate: (val) => (val ? '' : 'Required!'),
-//     },
-//     password: {
-//       // validate: (val) => val < 5 || val > 15 ? '字数大于5，小于15' : ''
-//     },
-//     repassword: {
-//       validate: (val) => (!val ? 'Required!' : ''),
-//     },
-//   },
-// });
+validator.form.onsubmit = (evn) => {
+  evn.preventDefault();
 
-// validator.form.onsubmit = (evn) => {
-//   evn.preventDefault();
-//   const values = validator.getValues();
-//   console.log(values);
-// };
+  const formData = validator.getValues();
 
-// validator.form.onreset = (evn) => {
-//   const data = validator.reset();
-//   console.log(data);
-// };
+  // check validator for any error and handle it
+  if (Object.values(validator?.errorMessages ?? {}).length) {
+    const errorNode = document.getElementById('errorField');
+    Object.entries(validator.errorMessages).forEach(
+      ([errorKey, errorMsg], index) => {
+        const errorContent = `${index}. ${errorKey}: ${errorMsg}`;
+        const content = document.createElement('div');
+        content.style.color = 'red';
+        content.innerHTML = errorContent;
+        errorNode.append(content);
+      }
+    );
+
+    return;
+  }
+
+  // store on local storage
+  localStorage.setItem('form-data', JSON.stringify(formData));
+};
